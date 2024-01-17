@@ -33,8 +33,7 @@ namespace FormulaEvaluator
         public static int Evaluate(String expression, Lookup variableEvaluator )
         {
             // TODO...
-            string[] substrings =
-            Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
+            string[] substrings = Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
             throw new NotImplementedException();
         }
 
