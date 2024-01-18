@@ -30,7 +30,8 @@ namespace FormulaEvaluator
         /// </summary>
         /// <param name="expression"> details of what an expression is</param>
         /// <param name="variableEvaluator"> details on what this is</param>
-        /// <returns></returns>
+        /// <returns> The evaluated result of the expression</returns>
+        /// <exception cref="ArgumentException"> Throw when the expression is invalid or contains unknow variables</exception>
         public static int Evaluate(String expression, Lookup variableEvaluator)
         {
             string[] substrings = Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)"); // tokenlize the input expression
@@ -90,17 +91,17 @@ namespace FormulaEvaluator
             }
             while (operatorStack.Count > 0)
             {
-                string oper = operatorStack.Pop();
-                int right = valueStack.Pop();
-                int left = valueStack.Pop();
-                valueStack.Push(Calculate(left, right, oper));
+                string oper = operatorStack.Pop();// get the first element in operatorStack
+                int right = valueStack.Pop();// get the first element in valueStack
+                int left = valueStack.Pop();// get the first element for now in valueStack
+                valueStack.Push(Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
             }
 
-            if (valueStack.Count != 1)
+            if (valueStack.Count != 1)// after all operator processed check if there is still unprocessed value in valueStack
             {
-                throw new ArgumentException("Invalid expression format");
+                throw new ArgumentException("Invalid expression");
             }
-            return valueStack.Pop();
+            return valueStack.Pop();//get the evaluated result of the expression
 
         }
 
