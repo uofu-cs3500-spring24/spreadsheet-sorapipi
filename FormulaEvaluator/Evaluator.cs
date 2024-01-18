@@ -18,7 +18,7 @@ namespace FormulaEvaluator
     ///
     /// File Contents
     ///
-    ///    This library class evaluates ...
+    ///    This library class evaluates the result of the input expression
     /// </summary>
     public class Evaluator
     {
@@ -70,6 +70,8 @@ namespace FormulaEvaluator
                     case ")": // Case for right parenthesis
                         while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
                         {
+                            if (valueStack.Count < 2)
+                                throw new ArgumentException("Invalid expression: insufficient values for operation");
                             string oper = operatorStack.Pop();// get the first element in operatorStack
                             int right = valueStack.Pop();// get the first element in valueStack
                             int left = valueStack.Pop();// get the first element for now in valueStack
@@ -81,7 +83,7 @@ namespace FormulaEvaluator
                         }
                         else
                         {
-                            throw new ArgumentException("Invalid expression");
+                            throw new ArgumentException("Invalid expression: unbalanced parenthesis");
                         }
                         break;
 
@@ -91,6 +93,8 @@ namespace FormulaEvaluator
             }
             while (operatorStack.Count > 0)
             {
+                if(valueStack.Count < 2)
+                    throw new ArgumentException("Invalid expression: insufficient values for operation ");
                 string oper = operatorStack.Pop();// get the first element in operatorStack
                 int right = valueStack.Pop();// get the first element in valueStack
                 int left = valueStack.Pop();// get the first element for now in valueStack
