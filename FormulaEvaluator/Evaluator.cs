@@ -25,127 +25,154 @@ namespace FormulaEvaluator
         public delegate int Lookup(String variable_name);
 
         /// <summary>
-        /// This function takes in a string representing ...
-        /// and does...
+        /// This function takes in a string representing an expression
+        /// and does evaluate the expression to get the calculated result
         /// </summary>
         /// <param name="expression"> details of what an expression is</param>
         /// <param name="variableEvaluator"> details on what this is</param>
         /// <returns></returns>
-        public static int Evaluate(String expression, Lookup variableEvaluator )
+        public static int Evaluate(String expression, Lookup variableEvaluator)
         {
-            // TODO...
-            string[] substrings = Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)");
-            var valueStack = new Stack<int>();
-            var operatorStack = new Stack<string>();
-            foreach (string token in substrings )
+            string[] substrings = Regex.Split(expression, "(\\()|(\\))|(-)|(\\+)|(\\*)|(/)"); // tokenlize the input expression
+            var valueStack = new Stack<int>(); // create a stack to store the integer values
+            var operatorStack = new Stack<string>(); // create a stack to store the operators as strings
+            foreach (string token in substrings)// loop every token in the substrings
             {
-                if(string.IsNullOrWhiteSpace(token)) continue;
-                if(int.TryParse(token,out int number))
+
+                if (string.IsNullOrWhiteSpace(token)) continue; //check if the token is null or white space
+                switch (token)
                 {
-                    ProcessNumber(number,valueStack,operatorStack);
-                }
-                else if (IsVariable(token))
-                {
-                    int varValue = variableEvaluator(token);
-                    ProcessNumber(varValue,valueStack,operatorStack);
-                }
-                else if (token == "+" || token == "-")
-                {
-                    ProcessOperator(token,valueStack,operatorStack);
-                    operatorStack.Push(token);
-                }
-                else if (token == "*" || token == "/")
-                {
-                    operatorStack.Push(token);
-                }
-                else if (token == "(")
-                {
-                    operatorStack.Push(token);
-                }
-                else if (token == ")")
-                {
-                    ProcessRightParenthesis(valueStack,operatorStack);
-                }
-                else
-                {
-                    throw new ArgumentException("Invalid token: " + token);
+                    case var t when int.TryParse(t, out int number): // Case for numbers
+                        Variable(number, valueStack, operatorStack);
+                        break;
+
+                    case var t when IsVariable(t): // Case for variables
+                        int value = variableEvaluator(t);
+                        Variable(value, valueStack, operatorStack);
+                        break;
+
+                    case "+":
+                    case "-": // Cases for + and - operators
+                        Operator(token, valueStack, operatorStack);
+                        operatorStack.Push(token);
+                        break;
+
+                    case "*":
+                    case "/": // Cases for * and / operators
+                        operatorStack.Push(token);
+                        break;
+
+                    case "(": // Case for left parenthesis
+                        operatorStack.Push(token);
+                        break;
+
+                    case ")": // Case for right parenthesis
+                        while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
+                        {
+                            string oper = operatorStack.Pop();// get the first element in operatorStack
+                            int right = valueStack.Pop();// get the first element in valueStack
+                            int left = valueStack.Pop();// get the first element for now in valueStack
+                            valueStack.Push(Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
+                        }
+                        if (operatorStack.Peek() == "(")// check if the first element in operatorStack is left parenthesis
+                        {
+                            operatorStack.Pop();// remove left parenthesis from operatorStack
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Invalid expression");
+                        }
+                        break;
+
+                    default: // Default case for invalid tokens
+                        throw new ArgumentException("Invalid token: " + token);
                 }
             }
-            return FinalEvaluation(valueStack,operatorStack);
-            
-        }
-        private static bool IsVariable(string token)
-        {
-            return Regex.IsMatch(token, "^[a-zA-Z]+[0-9]*$");
-        }
-        private static void ProcessNumber(int number, Stack<int>  valueStack, Stack<string> operatorStack)
-        {
-            if(operatorStack.TryPeek(out string op) && (op == "*" ||  op == "/"))
+            while (operatorStack.Count > 0)
             {
-                operatorStack.Pop();
-                int left = valueStack.Pop();
-                valueStack.Push(ApplyOperator(left, number, op));
-            }
-            else
-            {
-                valueStack.Push((int)number);
-            }
-        }
-        private static void ProcessOperator (string token, Stack<int> valueStack, Stack<string> operatorStack)
-        {
-            while(operatorStack.Count > 0 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-")){
-                string op = operatorStack.Pop();
+                string oper = operatorStack.Pop();
                 int right = valueStack.Pop();
                 int left = valueStack.Pop();
-                valueStack.Push(ApplyOperator(left,right,op));
-            }
-        }
-        private static void ProcessRightParenthesis(Stack<int> valueStack, Stack<string> operatorStack)
-        {
-            while(operatorStack.Count > 0 && operatorStack.Peek() != "(")
-            {
-                string op = operatorStack.Pop();
-                int right = valueStack.Pop();
-                int left = valueStack.Pop();
-                valueStack.Push(ApplyOperator(left,right,op));
-            }
-            if(operatorStack.Peek() == "(")
-            {
-                operatorStack.Pop();
-            }
-            else
-            {
-                throw new ArgumentException("Mismatched parentheses in expression");
-            }
-        }
-        private static int FinalEvaluation(Stack<int> valueStack, Stack<string> operatorStack)
-        {
-            while(operatorStack.Count > 0)
-            {
-                string op = operatorStack.Pop();
-                int right = valueStack.Pop();
-                int left = valueStack.Pop();
-                valueStack.Push(ApplyOperator(left,right,op));
+                valueStack.Push(Calculate(left, right, oper));
             }
 
-            if(valueStack.Count != 1)
+            if (valueStack.Count != 1)
             {
                 throw new ArgumentException("Invalid expression format");
             }
             return valueStack.Pop();
+
         }
 
-        private static int ApplyOperator(int left, int right, string op)
+        /// <summary>
+        /// this function just check if the token is a variable
+        /// </summary>
+        /// <param name="token"> token represents one part of the expression</param>
+        /// <returns></returns>
+        private static bool IsVariable(string token)
         {
-            switch (op)
+            return Regex.IsMatch(token, "^[a-zA-Z]+[0-9]*$");
+        }
+
+        /// <summary>
+        /// this function does the evaluate after getting the value of the variable if the operatorStack's first element is * or /,
+        /// otherwise just push it to valueStack
+        /// </summary>
+        /// <param name="value"> the value of the variable</param>
+        /// <param name="valueStack"> the stack of value</param>
+        /// <param name="operatorStack"> the stack of the operator</param>
+        private static void Variable(int value, Stack<int> valueStack, Stack<string> operatorStack)
+        {
+            if (operatorStack.TryPeek(out string op) && (op == "*" || op == "/"))// check if the first element in operatorStack is * or /
             {
-                case "+": return left + right;
-                case "-": return left - right;
-                case "*": return left * right;
-                case "/": 
-                    if(right == 0) throw new DivideByZeroException();
-                    return left / right;
-                default: throw new ArgumentException("Invalid operator: " + op);
+                operatorStack.Pop();// get the first element in operatorStack
+                int left = valueStack.Pop();// get the first element in valueStack
+                valueStack.Push(Calculate(left, value, op));// calculate 
+            }
+            else
+            {
+                valueStack.Push((int)value);// push the value onto valueStack
+            }
+        }
+
+        /// <summary>
+        /// this function handles the + and - operators
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="valueStack"></param>
+        /// <param name="operatorStack"></param>
+        private static void Operator(string token, Stack<int> valueStack, Stack<string> operatorStack)
+        {
+            while (operatorStack.Count > 0 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
+            {
+                string op = operatorStack.Pop();// get the first element in operatorStack
+                int right = valueStack.Pop();// get the first element in valueStack
+                int left = valueStack.Pop();// get the first element for now in valueStack
+                valueStack.Push(Calculate(left, right, op));// calculate the two values by the operator then push onto valueStack
+            }
+        }
+
+
+        /// <summary>
+        /// real calculation according to + - * /
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="oper"></param>
+        /// <returns></returns>
+        /// <exception cref="DivideByZeroException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        private static int Calculate(int left, int right, string oper)
+        {
+            switch (oper)
+            {
+                case "+": return left + right; // case for +
+                case "-": return left - right;// case for -
+                case "*": return left * right;// case for *
+                case "/":
+                    if (right == 0) throw new DivideByZeroException();
+                    return left / right;// case for  /
+                default: throw new ArgumentException("Invalid operator: " + oper); //default case for invalid operator
             }
         }
 
