@@ -21,111 +21,188 @@ class Tester
 {
     public static void Main(string[] args)
     {
-        //Test + - * /
-        if (Evaluator.Evaluate("X+X", (x) => 5) == 10)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("(2+X)*5", (x) => 2) == 20)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("X+2", (x) => 5) == 7)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("(5-2)*X", (x) => 5) == 15)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("X*2-4", (x) => 5) == 6)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("(X-5)/5", (x) => 10) == 1)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("(X+X)/2", (x) => 5) == 5)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("X-1*4", (x) => 5) == 1)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("1+2*X", (x) => 5) == 11)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("1+X/2", (x) => 10) == 6)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("4+A1-6", (a1) => 5) == 3)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        if (Evaluator.Evaluate("B2+0/2", (b2) => 5) == 5)
-            Console.WriteLine("Passed");
-        else
-            Console.WriteLine("Failed");
-        
-        
-        //Test exception
-        
-        
+        /// <summary>
+        /// test some expressions
+        /// </summary>
+        void testExpression1()
+        {
+            if (Evaluator.Evaluate("X+X", (x) => 5) == 10)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+
+        }
+        void testExpression2()
+        {
+            if (Evaluator.Evaluate("(2+X)*5", (x) => 2) == 20)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression3()
+        {
+            if (Evaluator.Evaluate("X+2", (x) => 5) == 7)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression4()
+        {
+            if (Evaluator.Evaluate("(5-2)*X", (x) => 5) == 15)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression5()
+        {
+            if (Evaluator.Evaluate("X*2-4", (x) => 5) == 6)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression6()
+        {
+            if (Evaluator.Evaluate("(X-5)/5", (x) => 10) == 1)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression7()
+        {
+            if (Evaluator.Evaluate("(X+X)/2", (x) => 5) == 5)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression8()
+        {
+            if (Evaluator.Evaluate("X-1*4", (x) => 5) == 1)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression9()
+        {
+            if (Evaluator.Evaluate("1+2*X", (x) => 5) == 11)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression10()
+        {
+            if (Evaluator.Evaluate("1+X/2", (x) => 10) == 6)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression11()
+        {
+            if (Evaluator.Evaluate("4+A1-6", (a1) => 5) == 3)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+        void testExpression12()
+        {
+            if (Evaluator.Evaluate("B2+0/2", (b2) => 5) == 5)
+                Console.WriteLine("Passed");
+            else
+                Console.WriteLine("Failed");
+        }
+
+        /// <summary>
+        /// test exceptions
+        /// </summary>
+
         //test invalid token
-        try
+        void testException1()
         {
-            Evaluator.Evaluate("2^2+5", null);
-            Console.WriteLine("Failed ");
+            try
+            {
+                Evaluator.Evaluate("2^2+5", null);
+                Console.WriteLine("Failed ");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("Passed " + e.Message);
+            }
         }
-        catch (ArgumentException e)
-        {
-            Console.WriteLine("Passed " + e.Message);
-        }
+
         // test divide by zero
-        try
+        void testException2()
         {
-            Evaluator.Evaluate("1/0", null);
-            Console.WriteLine("Failed");
+            try
+            {
+                Evaluator.Evaluate("1/0", null);
+                Console.WriteLine("Failed");
+            }
+            catch (DivideByZeroException d)
+            {
+                Console.WriteLine("Passed " + d.Message);
+            }
         }
-        catch (DivideByZeroException d)
-        {
-            Console.WriteLine("Passed " + d.Message);
-        }
+
         // test unbalanced paranthesis
-        try
+        void testException3()
         {
-            Evaluator.Evaluate("(3+2", null);
-            Console.WriteLine("Failed");
+            try
+            {
+                Evaluator.Evaluate("(3+2", null);
+                Console.WriteLine("Failed");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("Passed " + e.Message);
+            }
         }
-        catch (ArgumentException e)
-        {
-            Console.WriteLine("Passed "+e.Message);
-        }
+
         // test unknow variable
-        try
+        void testException4()
         {
-            Evaluator.Evaluate("X+2", (x) => throw new ArgumentException("Unknown variable"));
-            Console.WriteLine("Failed");
+            try
+            {
+                Evaluator.Evaluate("X+2", (x) => throw new ArgumentException("Unknown variable"));
+                Console.WriteLine("Failed");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("Passed " + e.Message);
+            }
         }
-        catch (ArgumentException e)
-        {
-            Console.WriteLine("Passed "+e.Message);
-        }
+
         // test empty expression
-        try
+        void ttestException5()
         {
-            Evaluator.Evaluate("", null);
-            Console.WriteLine("Failed");
+            try
+            {
+                Evaluator.Evaluate("", null);
+                Console.WriteLine("Failed");
+            }
+            catch (ArgumentException e)
+            {
+                Console.WriteLine("Passed " + e.Message);
+            }
         }
-        catch (ArgumentException e)
-        {
-            Console.WriteLine("Passed "+e.Message);
-        }
-        
+
+        testException1();
+        testException2();
+        testException3();
+        testException4();
+        ttestException5();
+        testExpression1();
+        testExpression2();
+        testExpression3(); 
+        testExpression4();
+        testExpression5();
+        testExpression6();
+        testExpression7();
+        testExpression8();
+        testExpression9();
+        testExpression10();
+        testExpression11();
+        testExpression12();
+
+
     }
 }
 
