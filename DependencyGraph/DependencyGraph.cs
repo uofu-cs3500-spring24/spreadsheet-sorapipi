@@ -41,6 +41,25 @@ namespace SpreadsheetUtilities
     // dependees("c") = {"a"}
     // dependees("d") = {"b", "d"}
     /// </summary>
+
+
+    /// <summary>
+    /// Author:    YINGHAO CHEN
+    /// Partner:   -NONE-
+    /// Date:      25/01/2024
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and YINGHAO CHEN - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, YINGHAO CHEN, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents
+    ///
+    ///    This library class build a dependency graph
+    /// </summary>
     public class DependencyGraph
     {
 
@@ -82,7 +101,15 @@ namespace SpreadsheetUtilities
         {
             get
             {
-                return dependees.ContainsKey(s) ? dependees[s].Count : 0;
+                if (dependents.ContainsKey(s))
+                {
+                    return dependents[s].Count;
+                }
+                else
+                {
+                    // "s" has no dependees 
+                    return 0;
+                }
             }
         }
         /// <summary>
@@ -178,23 +205,25 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-            // First, remove all current dependents of 's'
+            // remove all current dependents of 's'
             if (dependents.ContainsKey(s))
             {
                 List<string> l = new List<string>(dependents[s]);
-                foreach (var dependent in l)
+                int i = 0;
+                while (i < l.Count)
                 {
-                    if (dependents.ContainsKey(s))
-                    {
-                        dependents[s].Remove(dependent);
-                    }
-
-
-
+                    var dependent = l[i];
+                    dependents[s].Remove(dependent);
+                    i++;
                 }
             }
+            else
+            {
+                dependents[s] = new HashSet<string> {};
+            }
+              
 
-            // Now, add the new dependents
+            // add the new dependents
             foreach (var t in newDependents)
             {
                 AddDependency(s, t);
@@ -206,29 +235,32 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
-            // First, remove all current dependees of 's'
             if (dependees.ContainsKey(s))
             {
-                foreach (var dependee in new List<string>(dependees[s]))
+                List<string> l = new List<string>(dependees[s]);
+                // remove all current dependees of 's'
+                int i = 0;
+                while (i < l.Count)
                 {
-                    if (dependees.ContainsKey(s))
-                    {
-                        dependees[s].Remove(dependee);
-                    }
-
+                    var dependee = l[i];
+                    dependees[s].Remove(dependee);
+                    i++;
                 }
             }
-
-            // Now, add the new dependees
+            else
+            {
+                dependees[s] = new HashSet<string> { };
+            }
+            //add the new dependees
             foreach (var t in newDependees)
             {
                 AddDependency(t, s);
             }
+
+
+
+
         }
 
-        public static void InfiniteRecursion()
-        {
-            InfiniteRecursion();
-        }
     }
 }
