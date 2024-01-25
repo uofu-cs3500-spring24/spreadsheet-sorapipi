@@ -2,12 +2,30 @@ using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SpreadsheetUtilities;
-namespace DevelopmentTests
+namespace DependencyGraphTests
 {
     /// <summary>
     ///This is a test class for DependencyGraphTest and is intended
     ///to contain all DependencyGraphTest Unit Tests
     ///</summary>
+
+    /// <summary>
+    /// Author:    YINGHAO CHEN
+    /// Partner:   -NONE-
+    /// Date:      25/01/2024
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and YINGHAO CHEN - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, YINGHAO CHEN, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents
+    ///
+    ///    This console App is used to test the dependencyGraph library
+    /// </summary>
     [TestClass()]
     public class DependencyGraphTest
     {
@@ -223,37 +241,27 @@ namespace DevelopmentTests
             }
         }
 
-        ////////////////////////////
+        // Added tests
 
         /// <summary>
         /// Adding the same dependency more than once should not create duplicates.
         /// </summary>
         [TestMethod()]
-        public void NoDuplicateEntriesTest()
+        public void NoDuplicateTest()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
-            t.AddDependency("a", "b"); // Attempt to add duplicate
-            Assert.AreEqual(1, t.Size); // Size should remain 1
+            t.AddDependency("a", "b"); // add duplicate
+            Assert.AreEqual(1, t.Size); // check if the same dependency more than 1
             var dependents = t.GetDependents("a");
             var dependeeCount = dependents.Count();
-            Assert.AreEqual(1, dependeeCount); // There should only be one dependent
-            Assert.IsTrue(dependents.Contains("b")); // The dependent should be "b"
+            Assert.AreEqual(1, dependeeCount);
+            Assert.IsTrue(dependents.Contains("b")); // check if the dependent is correct
         }
 
+
         /// <summary>
-        /// Tests that adding duplicate dependencies does not increase the size of the graph.
-        /// </summary>
-        [TestMethod()]
-        public void AddDuplicateDependencyTest()
-        {
-            DependencyGraph t = new DependencyGraph();
-            t.AddDependency("a", "b");
-            t.AddDependency("a", "b"); // Add duplicate
-            Assert.AreEqual(1, t.Size);
-        }
-        /// <summary>
-        /// Tests that removing a non-existent dependency does not change the graph.
+        /// Tests removing a non-existent dependency.
         /// </summary>
         [TestMethod()]
         public void RemoveNonExistentDependencyTest()
@@ -261,13 +269,13 @@ namespace DevelopmentTests
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
             t.RemoveDependency("a", "c"); // Remove non-existent
-            Assert.AreEqual(1, t.Size);
+            Assert.AreEqual(1, t.Size); // dependency graph maintain
         }
         /// <summary>
-        /// Tests the removal of all dependencies from a specific node.
+        /// Tests the removal of all dependencies of a specific string.
         /// </summary>
         [TestMethod()]
-        public void RemoveAllDependenciesFromNodeTest()
+        public void RemoveAllDependenciesTest()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
@@ -278,7 +286,7 @@ namespace DevelopmentTests
         }
 
         /// <summary>
-        /// Tests that the graph handles self-dependencies correctly.
+        /// Tests the self dependency.
         /// </summary>
         [TestMethod()]
         public void SelfDependencyTest()
@@ -291,7 +299,7 @@ namespace DevelopmentTests
         }
 
         /// <summary>
-        /// Tests that dependents and dependees are correctly updated after replacing them.
+        /// Tests replace dependents and dependees.
         /// </summary>
         [TestMethod()]
         public void ReplaceDependentsAndDependeesTest()
@@ -301,19 +309,14 @@ namespace DevelopmentTests
             t.ReplaceDependents("a", new HashSet<string>() { "c" });
             t.ReplaceDependees("c", new HashSet<string>() { "d" });
 
-
-            // Confirm "a" now has "c" as a dependent
-            Assert.IsTrue(t.GetDependents("a").Contains("c"));
-            // Confirm "c" now has "d" as a dependee
-            Assert.IsTrue(t.GetDependees("c").Contains("d"));
-            // Confirm "b" is no longer a dependent of "a"
-            Assert.IsFalse(t.GetDependents("a").Contains("b"));
-            // Confirm "a" is no longer a dependee of "c"
-            Assert.IsFalse(t.GetDependees("c").Contains("a"));
+            Assert.IsTrue(t.GetDependents("a").Contains("c"));// check if "a" 's dependents is "c" for now
+            Assert.IsTrue(t.GetDependees("c").Contains("d"));// check if "c" 's dependees is "d" for now
+            Assert.IsFalse(t.GetDependents("a").Contains("b"));// check if "a" 's dependents is not "b" for now
+            Assert.IsFalse(t.GetDependees("c").Contains("a"));// check if "c" 's dependees is not "a" for now
         }
 
         /// <summary>
-        /// Tests that cycles are handled correctly by the graph.
+        /// Tests cycle dependency.
         /// </summary>
         [TestMethod()]
         public void CycleDependencyTest()
@@ -321,7 +324,7 @@ namespace DevelopmentTests
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
             t.AddDependency("b", "c");
-            t.AddDependency("c", "a"); // Create a cycle
+            t.AddDependency("c", "a"); // Create a cycle dependency
 
             Assert.IsTrue(t.HasDependents("a"));
             Assert.IsTrue(t.HasDependees("c"));
@@ -329,19 +332,20 @@ namespace DevelopmentTests
         }
 
         /// <summary>
-        /// Tests the indexer to get the count of dependees for a given node.
+        /// Tests the count of dependees of a string.
         /// </summary>
         [TestMethod()]
-        public void IndexerTest()
+        public void SizeOfDependeesTest()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
             t.AddDependency("a", "c");
             t.AddDependency("d", "c");
 
-            Assert.AreEqual(2, t["c"]);
-            Assert.AreEqual(0, t["a"]); // "a" has no dependees
+            Assert.AreEqual(0, t["c"]);
+            Assert.AreEqual(2, t["a"]); // "a" has no dependees
         }
+
     }
 }
 
