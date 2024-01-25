@@ -14,8 +14,8 @@ This console app is used to test the code in FormulaEvaluator.
 
 
 # Assignment Specific Topics
-To learn how to write test code and how to know if it's passed.
-To learn how to test the exceptions.
+To learn how to write test code and how to know if it's passed
+To learn how to test the exceptions
 
 
 
