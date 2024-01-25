@@ -343,7 +343,7 @@ namespace DependencyGraphTests
             t.AddDependency("d", "c");
 
             Assert.AreEqual(0, t["c"]);
-            Assert.AreEqual(2, t["a"]); // "a" has no dependees
+            Assert.AreEqual(2, t["a"]); // "a" has no dependees.
         }
 
     }
