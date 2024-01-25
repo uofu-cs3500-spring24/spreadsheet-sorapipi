@@ -1,5 +1,6 @@
 ﻿
 using FormulaEvaluator;
+
 /// <summary>
 /// Author:    YINGHAO CHEN
 /// Partner:   -NONE-

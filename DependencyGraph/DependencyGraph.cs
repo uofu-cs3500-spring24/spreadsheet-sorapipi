@@ -219,9 +219,9 @@ namespace SpreadsheetUtilities
             }
             else
             {
-                dependents[s] = new HashSet<string> {};
+                dependents[s] = new HashSet<string> { };
             }
-              
+
 
             // add the new dependents
             foreach (var t in newDependents)
