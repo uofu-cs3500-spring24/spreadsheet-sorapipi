@@ -335,7 +335,7 @@ namespace DependencyGraphTests
         /// Tests the count of dependees of a string.
         /// </summary>
         [TestMethod()]
-        public void SizeOFDependeesTest()
+        public void SizeOfDependeesTest()
         {
             DependencyGraph t = new DependencyGraph();
             t.AddDependency("a", "b");
