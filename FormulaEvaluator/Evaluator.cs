@@ -40,7 +40,6 @@ namespace FormulaEvaluator
             foreach (string token in substrings)// loop every token in the substrings
             {
                 if (string.IsNullOrWhiteSpace(token)) continue; //check if the token is null or white space
-
                 switch (token)
                 {
                     case var t when int.TryParse(t, out int number): // Case for numbers
@@ -62,6 +61,7 @@ namespace FormulaEvaluator
 
                     case "*":
                     case "/": // Cases for * and / operators
+                        Variable(valueStack.Pop(), valueStack, operatorStack);
                         operatorStack.Push(token);
                         break;
 
@@ -168,13 +168,15 @@ namespace FormulaEvaluator
         {
             switch (oper)
             {
-                case "+": return left + right; // case for +
-                case "-": return left - right;// case for -
-                case "*": return left * right;// case for *
+                case "+":
+                    return left + right; // case for +
+                case "-":
+                    return left - right;// case for -
+                case "*":
+                    return left * right;// case for *
                 case "/":
                     if (right == 0) 
                         throw new ArgumentException("divided by zero");
-                    Console.WriteLine(left/right);
                     return left/right;// case for  /
                 default: throw new ArgumentException("Invalid operator: " + oper); //default case for invalid operator
             }
