@@ -137,7 +137,7 @@ class Tester
                 Evaluator.Evaluate("1/0", null);
                 Console.WriteLine("Failed");
             }
-            catch (DivideByZeroException d)
+            catch (ArgumentException d)
             {
                 Console.WriteLine("Passed " + d.Message);
             }

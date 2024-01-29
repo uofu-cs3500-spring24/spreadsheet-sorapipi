@@ -39,8 +39,8 @@ namespace FormulaEvaluator
             var operatorStack = new Stack<string>(); // create a stack to store the operators as strings
             foreach (string token in substrings)// loop every token in the substrings
             {
-
                 if (string.IsNullOrWhiteSpace(token)) continue; //check if the token is null or white space
+
                 switch (token)
                 {
                     case var t when int.TryParse(t, out int number): // Case for numbers
@@ -49,6 +49,8 @@ namespace FormulaEvaluator
 
                     case var t when IsVariable(t): // Case for variables
                         int value = variableEvaluator(t);
+                        if (value == 0 && token != "0")
+                            throw new ArgumentException("Undefined variable");
                         Variable(value, valueStack, operatorStack);
                         break;
 
@@ -75,16 +77,11 @@ namespace FormulaEvaluator
                             string oper = operatorStack.Pop();// get the first element in operatorStack
                             int right = valueStack.Pop();// get the first element in valueStack
                             int left = valueStack.Pop();// get the first element for now in valueStack
-                            valueStack.Push(Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
+                            valueStack.Push((int)Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
                         }
-                        if (operatorStack.Peek() == "(")// check if the first element in operatorStack is left parenthesis
-                        {
-                            operatorStack.Pop();// remove left parenthesis from operatorStack
-                        }
-                        else
-                        {
-                            throw new ArgumentException("Invalid expression: unbalanced parenthesis");
-                        }
+                        if (operatorStack.Count == 0)
+                            throw new ArgumentException("Unbalanced parenthesis");
+                        operatorStack.Pop();
                         break;
 
                     default: // Default case for invalid tokens
@@ -93,12 +90,12 @@ namespace FormulaEvaluator
             }
             while (operatorStack.Count > 0)
             {
-                if(valueStack.Count < 2)
+                if (valueStack.Count < 2)
                     throw new ArgumentException("Invalid expression: insufficient values for operation ");
                 string oper = operatorStack.Pop();// get the first element in operatorStack
                 int right = valueStack.Pop();// get the first element in valueStack
                 int left = valueStack.Pop();// get the first element for now in valueStack
-                valueStack.Push(Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
+                valueStack.Push((int)Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
             }
 
             if (valueStack.Count != 1)// after all operator processed check if there is still unprocessed value in valueStack
@@ -116,7 +113,7 @@ namespace FormulaEvaluator
         /// <returns></returns>
         private static bool IsVariable(string token)
         {
-            return Regex.IsMatch(token, "^[a-zA-Z]+[0-9]*$");
+            return Regex.IsMatch(token, "^[a-zA-Z_][a-zA-Z0-9_]*$");
         }
 
         /// <summary>
@@ -132,11 +129,11 @@ namespace FormulaEvaluator
             {
                 operatorStack.Pop();// get the first element in operatorStack
                 int left = valueStack.Pop();// get the first element in valueStack
-                valueStack.Push(Calculate(left, value, op));// calculate 
+                valueStack.Push((int)Calculate(left, value, op));// calculate 
             }
             else
             {
-                valueStack.Push((int)value);// push the value onto valueStack
+                valueStack.Push(value);// push the value onto valueStack
             }
         }
 
@@ -153,7 +150,7 @@ namespace FormulaEvaluator
                 string op = operatorStack.Pop();// get the first element in operatorStack
                 int right = valueStack.Pop();// get the first element in valueStack
                 int left = valueStack.Pop();// get the first element for now in valueStack
-                valueStack.Push(Calculate(left, right, op));// calculate the two values by the operator then push onto valueStack
+                valueStack.Push((int)Calculate(left, right, op));// calculate the two values by the operator then push onto valueStack
             }
         }
 
@@ -165,7 +162,7 @@ namespace FormulaEvaluator
         /// <param name="right"></param>
         /// <param name="oper"></param>
         /// <returns></returns>
-        /// <exception cref="DivideByZeroException"></exception>
+        /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentException"></exception>
         private static int Calculate(int left, int right, string oper)
         {
@@ -175,8 +172,10 @@ namespace FormulaEvaluator
                 case "-": return left - right;// case for -
                 case "*": return left * right;// case for *
                 case "/":
-                    if (right == 0) throw new DivideByZeroException();
-                    return left / right;// case for  /
+                    if (right == 0) 
+                        throw new ArgumentException("divided by zero");
+                    Console.WriteLine(left/right);
+                    return left/right;// case for  /
                 default: throw new ArgumentException("Invalid operator: " + oper); //default case for invalid operator
             }
         }
