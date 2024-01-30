@@ -17,4 +17,5 @@ The Spreadsheet program is currently capable of evaluating a input expression  F
 # Time Expenditures:
 
     1. Assignment One:   Predicted Hours:          5        Actual Hours:   7
-    1. Assignment Two:   Predicted Hours:          7        Actual Hours:   10   spent 2 hours on debugging
+    2. Assignment Two:   Predicted Hours:          7        Actual Hours:   10   spent 2 hours on debugging
+    3. Assignment Three:   Predicted Hours:        10       Actual Hours:   16   
