@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -45,6 +46,7 @@ namespace SpreadsheetUtilities
   /// </summary>
   public class Formula
   {
+        private List<string> tokens = new List<string>();
     /// <summary>
     /// Creates a Formula from a string that consists of an infix expression written as
     /// described in the class comment.  If the expression is syntactically invalid,
@@ -82,7 +84,95 @@ namespace SpreadsheetUtilities
     /// </summary>
     public Formula(String formula, Func<string, string> normalize, Func<string, bool> isValid)
     {
+            if (normalize == null)
+                normalize = s => s;
+            if(isValid == null)
+                isValid = s => true;
+            ValidateAndStoreTokens(formula, normalize,isValid);
     }
+
+    private void ValidateAndStoreTokens(string formula,Func<string,string> normalize, Func<string,bool> isValid)
+        {
+            var tokenList = GetTokens(formula).ToList();
+            if (tokenList.Count == 0)
+                throw new FormulaFormatException("Empty formula: check if you input the formula");
+
+            int openParentheses = 0;
+            string previousToken = null;
+            
+            for(int i=0; i<tokenList.Count; i++)
+            {
+                string token = tokenList[i];
+                // check balanced parentheses
+                if (token == "(")
+                    openParentheses++;
+                if(token == ")")
+                    openParentheses--;
+                if (openParentheses < 0)
+                    throw new FormulaFormatException("Unbalanced parentheses: check if every left parenthesis has a right parenthesis");
+
+                //check starting and ending tokens
+                if (i == 0 && !(IsVariable(token) || token == "(" || double.TryParse(token, out _)))
+                    throw new FormulaFormatException($"{token} is not a valid starting token. Check if the input starting token is a variable, left parenthesis or a double");
+                if(i == tokenList.Count - 1 && !(IsVariable(token) || token == ")" || double.TryParse(token, out _)))
+                    throw new FormulaFormatException($"{token} is not a valid ending token. Check if the input ending token is a variable, left parenthesis or a double");
+
+                //check sequence of tokens
+                if (previousToken != null && !IsSequence(previousToken, token))
+                    throw new FormulaFormatException("Invalid sequence. Check if the sequence is valid. For example: maybe you input something like '(*' ");
+
+                //Normalize and validate
+                if (IsVariable(token))
+                {
+                    string normalizedToken = normalize(token);
+                    if(!isValid(normalizedToken))
+                        throw new FormulaFormatException($"{normalizedToken} is not valid");
+                    tokenList[i] = normalizedToken;
+                }
+
+                previousToken = token;
+
+
+            }
+
+
+
+
+            if (openParentheses !=0)
+            {
+                throw new FormulaFormatException("Unbalanced parentheses. Check if every left parenthesis has a right parenthesis");
+            }
+
+         
+            tokens = tokenList;
+        }
+
+
+        private bool IsSequence ( string previousToken, string currentToken)
+        {
+            bool current = double.TryParse(currentToken, out _) || IsVariable(currentToken);
+
+            bool previous = double.TryParse(previousToken, out _) || IsVariable(previousToken);
+
+            List<String> list = new List<String>{ "+", "-", "*", "/", };
+
+            if (list.Contains(previousToken) && (currentToken == "(" || list.Contains(currentToken)))
+                return false;
+
+            if(previousToken == ")" && current)
+                return false;
+
+            if(previous && current)
+                return false;
+
+            if (previousToken == ")" && currentToken == "(")
+                return false;
+
+            if (previous && currentToken == "(")
+                return false;
+
+            return true;
+        }
 
     /// <summary>
     /// Evaluates this Formula, using the lookup delegate to determine the values of
@@ -107,24 +197,163 @@ namespace SpreadsheetUtilities
     /// </summary>
     public object Evaluate(Func<string, double> lookup)
     {
-      return null;
-    }
+            string[] substrings = GetTokens(lookup.ToString()).ToList(); // tokenlize the input expression
+            var valueStack = new Stack<double>(); // create a stack to store the integer values
+            var operatorStack = new Stack<string>(); // create a stack to store the operators as strings
+            foreach (string token in substrings)// loop every token in the substrings
+            {
+                if (string.IsNullOrWhiteSpace(token)) continue; //check if the token is null or white space
+                switch (token)
+                {
+                    case var t when int.TryParse(t, out int number): // Case for numbers
+                        Variable(number, valueStack, operatorStack);
+                        break;
 
-    /// <summary>
-    /// Enumerates the normalized versions of all of the variables that occur in this 
-    /// formula.  No normalization may appear more than once in the enumeration, even 
-    /// if it appears more than once in this Formula.
-    /// 
-    /// For example, if N is a method that converts all the letters in a string to upper case:
-    /// 
-    /// new Formula("x+y*z", N, s => true).GetVariables() should enumerate "X", "Y", and "Z"
-    /// new Formula("x+X*z", N, s => true).GetVariables() should enumerate "X" and "Z".
-    /// new Formula("x+X*z").GetVariables() should enumerate "x", "X", and "z".
-    /// </summary>
-    public IEnumerable<String> GetVariables()
-    {
-      return null;
-    }
+                    case var t when IsVariable(t): // Case for variables
+                        int value = lookup(t);
+                        if (value == 0 && token != "0")
+                            throw new ArgumentException("Undefined variable");
+                        Variable(value, valueStack, operatorStack);
+                        break;
+
+                    case "+":
+                    case "-": // Cases for + and - operators
+                        Operator(token, valueStack, operatorStack);
+                        operatorStack.Push(token);
+                        break;
+
+                    case "*":
+                    case "/": // Cases for * and / operators
+                        Variable(valueStack.Pop(), valueStack, operatorStack);
+                        operatorStack.Push(token);
+                        break;
+
+                    case "(": // Case for left parenthesis
+                        operatorStack.Push(token);
+                        break;
+
+                    case ")": // Case for right parenthesis
+                        while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
+                        {
+                            if (valueStack.Count < 2)
+                                throw new ArgumentException("Invalid expression: insufficient values for operation");
+                            string oper = operatorStack.Pop();// get the first element in operatorStack
+                            double right = valueStack.Pop();// get the first element in valueStack
+                            double left = valueStack.Pop();// get the first element for now in valueStack
+                            valueStack.Push(Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
+                        }
+                        if (operatorStack.Count == 0)
+                            throw new ArgumentException("Unbalanced parenthesis");
+                        operatorStack.Pop();
+                        break;
+
+                    default: // Default case for invalid tokens
+                        throw new ArgumentException("Invalid token: " + token);
+                }
+            }
+            while (operatorStack.Count > 0)
+            {
+                if (valueStack.Count < 2)
+                    throw new ArgumentException("Invalid expression: insufficient values for operation ");
+                string oper = operatorStack.Pop();// get the first element in operatorStack
+                double right = valueStack.Pop();// get the first element in valueStack
+                double left = valueStack.Pop();// get the first element for now in valueStack
+                valueStack.Push(Calculate(left, right, oper));// calculate the two values by the operator then push onto valueStack
+            }
+
+            if (valueStack.Count != 1)// after all operator processed check if there is still unprocessed value in valueStack
+            {
+                throw new ArgumentException("Invalid expression");
+            }
+            return valueStack.Pop();//get the evaluated result of the expression
+        }
+
+        /// <summary>
+        /// this function does the evaluate after getting the value of the variable if the operatorStack's first element is * or /,
+        /// otherwise just push it to valueStack
+        /// </summary>
+        /// <param name="value"> the value of the variable</param>
+        /// <param name="valueStack"> the stack of value</param>
+        /// <param name="operatorStack"> the stack of the operator</param>
+        private static void Variable(double value, Stack<double> valueStack, Stack<string> operatorStack)
+        {
+            if (operatorStack.TryPeek(out string op) && (op == "*" || op == "/"))// check if the first element in operatorStack is * or /
+            {
+                operatorStack.Pop();// get the first element in operatorStack
+                double left = valueStack.Pop();// get the first element in valueStack
+                valueStack.Push(Calculate(left, value, op));// calculate 
+            }
+            else
+            {
+                valueStack.Push(value);// push the value onto valueStack
+            }
+        }
+
+        /// <summary>
+        /// this function handles the + and - operators
+        /// </summary>
+        /// <param name="token"></param>
+        /// <param name="valueStack"></param>
+        /// <param name="operatorStack"></param>
+        private static void Operator(string token, Stack<double> valueStack, Stack<string> operatorStack)
+        {
+            while (operatorStack.Count > 0 && (operatorStack.Peek() == "+" || operatorStack.Peek() == "-"))
+            {
+                string op = operatorStack.Pop();// get the first element in operatorStack
+                double right = valueStack.Pop();// get the first element in valueStack
+                double left = valueStack.Pop();// get the first element for now in valueStack
+                valueStack.Push(Calculate(left, right, op));// calculate the two values by the operator then push onto valueStack
+            }
+            operatorStack.Push(token);
+        }
+
+        /// <summary>
+        /// real calculation according to + - * /
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <param name="oper"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        private static double Calculate(double left, double right, string oper)
+        {
+            switch (oper)
+            {
+                case "+":
+                    return left + right; // case for +
+                case "-":
+                    return left - right;// case for -
+                case "*":
+                    return left * right;// case for *
+                case "/":
+                    if (right == 0)
+                        throw new DivideByZeroException("divided by zero");
+                    return left / right;// case for  /
+                default: throw new InvalidOperationException("Invalid operator: " + oper); //default case for invalid operator
+            }
+        }
+
+        /// <summary>
+        /// Enumerates the normalized versions of all of the variables that occur in this 
+        /// formula.  No normalization may appear more than once in the enumeration, even 
+        /// if it appears more than once in this Formula.
+        /// 
+        /// For example, if N is a method that converts all the letters in a string to upper case:
+        /// 
+        /// new Formula("x+y*z", N, s => true).GetVariables() should enumerate "X", "Y", and "Z"
+        /// new Formula("x+X*z", N, s => true).GetVariables() should enumerate "X" and "Z".
+        /// new Formula("x+X*z").GetVariables() should enumerate "x", "X", and "z".
+        /// </summary>
+        public IEnumerable<String> GetVariables()
+        {
+            return tokens.Where(t => IsVariable(t)).Distinct();
+        }
+
+    private bool IsVariable(string token)
+        {
+            return Regex.IsMatch(token, @"^[a-zA-Z_][a-zA-Z_0-9]*$");
+        }
 
     /// <summary>
     /// Returns a string containing no spaces which, if passed to the Formula
@@ -138,7 +367,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override string ToString()
     {
-      return null;
+      return string.Join("",tokens);
     }
 
     /// <summary>
@@ -165,7 +394,9 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override bool Equals(object? obj)
     {
-      return false;
+      if (obj == null || !(obj is Formula other))
+          return false;
+      return tokens.SequenceEqual(other.tokens);
     }
 
     /// <summary>
@@ -175,7 +406,9 @@ namespace SpreadsheetUtilities
     /// </summary>
     public static bool operator ==(Formula f1, Formula f2)
     {
-      return false;
+            if(ReferenceEquals(f1, null))
+                return ReferenceEquals(f2, null);
+      return f1.Equals(f2);
     }
 
     /// <summary>
@@ -185,7 +418,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public static bool operator !=(Formula f1, Formula f2)
     {
-      return false;
+      return !(f1 == f2);
     }
 
     /// <summary>
@@ -195,7 +428,7 @@ namespace SpreadsheetUtilities
     /// </summary>
     public override int GetHashCode()
     {
-      return 0;
+      return string.Join("",tokens).GetHashCode();
     }
 
     /// <summary>
