@@ -30,9 +30,9 @@ namespace FormulaTests
 
         }
 
-        // Test for all operators
+        // Test for four operators
         [TestMethod()]
-        public void TestAllOperators()
+        public void TestFourOperators()
         {
             Formula f = new Formula("2 + 3 - 4 * 5 / 2");
             Assert.AreEqual(-5.0, f.Evaluate(s => 0));
@@ -73,9 +73,9 @@ namespace FormulaTests
             Assert.AreEqual(8.0, f.Evaluate(s => 0));
         }
 
-        // Test for arithmetic with variable
+        // Test for expression with variable
         [TestMethod]
-        public void TestArithmeticWithVariable()
+        public void TestExpressionwithVariable()
         {
             Formula f = new Formula("2+X1");
             Assert.AreEqual(6.0, f.Evaluate(s => 4));
@@ -101,9 +101,9 @@ namespace FormulaTests
 
 
 
-        // Test for parenthesis impact
+        // Test for parenthesis 
         [TestMethod()]
-        public void TestParenthesesImpact()
+        public void TestParentheses()
         {
             Formula f = new Formula("2 * (3 + 5)");
             Assert.AreEqual(16.0, f.Evaluate(s => 0));
@@ -135,7 +135,7 @@ namespace FormulaTests
 
         // Test for variable normalization
         [TestMethod()]
-        public void TestVariableNormalization()
+        public void TestNormalization()
         {
             Formula f = new Formula("x1 + Y1", s => s.ToUpper(), s => true);
             Assert.AreEqual(2.0, f.Evaluate(s => 1));
@@ -144,7 +144,7 @@ namespace FormulaTests
         // Test for variable validation
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void TestVariableValidation()
+        public void TestValidation()
         {
             new Formula("x1 + Y1", s => s, s => !s.Contains("Y"));
         }
@@ -152,7 +152,7 @@ namespace FormulaTests
         // Test for expression starting with operator
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void TestStartWithOperator()
+        public void TestInvalidStarting()
         {
             new Formula("* 2 + 3");
         }
@@ -160,7 +160,7 @@ namespace FormulaTests
         // Test for expression ending with operator
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void TestEndWithOperator()
+        public void TestInvalidEnding()
         {
             new Formula("2 + 3 *");
         }
@@ -168,7 +168,7 @@ namespace FormulaTests
         // Test for empty expression
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void TestEmptyExpression()
+        public void TestEmpty()
         {
             new Formula("");
         }
@@ -176,7 +176,7 @@ namespace FormulaTests
         // Test for extra parenthesis
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void TestExtraParentheses()
+        public void TestUnbalancedParentheses()
         {
             new Formula("((2 + 3)");
         }
@@ -184,7 +184,7 @@ namespace FormulaTests
         // Test for incorrect order of parenthesis
         [TestMethod()]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void TestIncorrectOrderOfParentheses()
+        public void TestInvalidParentheses()
         {
             new Formula("2 + (3 - 5)) + (4");
         }
@@ -198,9 +198,9 @@ namespace FormulaTests
         }
 
 
-        // Test for equality of different formulae
+        // Test for equality of different formula
         [TestMethod()]
-        public void TestEqualityDifferentFormulas()
+        public void TestEquality()
         {
             Formula f1 = new Formula("2 + 2");
             Formula f2 = new Formula("4");
@@ -224,6 +224,7 @@ namespace FormulaTests
             Assert.AreEqual(f1.GetHashCode(), f2.GetHashCode());
         }
 
+        // Test for scientific notation
         [TestMethod]
         public void TestScientificNotation()
         {
@@ -232,25 +233,25 @@ namespace FormulaTests
             object result = f.Evaluate(s => 0);
             double delta = 1e-6;
 
-            // Check if the result is a double and not a FormulaError
             Assert.IsNotInstanceOfType(result, typeof(FormulaError), "Evaluation resulted in an error.");
 
-            // Cast the result to double before comparing
             double actual = (double)result;
 
             Assert.IsTrue(Math.Abs(expected - actual) <= delta, "The evaluated result is not as expected.");
         }
 
+        // Test equality of formula
         [TestMethod]
-        public void TestIdenticalFormulas()
+        public void TestEqualityOfFormulas()
         {
             Formula f1 = new Formula("x1+y2");
             Formula f2 = new Formula("x1+y2");
             Assert.AreEqual(f1, f2);
         }
 
+        // Test for formatting
         [TestMethod]
-        public void TestNumericTokenFormatting()
+        public void TestNumericFormatting()
         {
             Formula f1 = new Formula("2.0 + x7");
             Formula f2 = new Formula("2.000 + x7");
@@ -258,6 +259,7 @@ namespace FormulaTests
             Assert.IsTrue(f1 == f2);
         }
 
+        // Test equality of different order
         [TestMethod]
         public void TestDifferentOrder()
         {
@@ -266,22 +268,25 @@ namespace FormulaTests
             Assert.AreNotEqual(f1, f2);
         }
 
+        // Test equality with non formula object
         [TestMethod]
-        public void TestComparisonWithNonFormulaObject()
+        public void TestEqualitywithNonFormulaObject()
         {
             Formula f1 = new Formula("x1+y2");
             object obj = "x1+y2";
             Assert.AreNotEqual(f1, obj);
         }
 
+        // Test comparison with null
         [TestMethod]
-        public void TestComparisonWithNull()
+        public void TestEqualityWithNull()
         {
             Formula f1 = new Formula("x1+y2");
             Formula f2 = null;
             Assert.AreNotEqual(f1, f2);
         }
 
+        // Test different token count
         [TestMethod]
         public void TestDifferentTokenCount()
         {
@@ -290,14 +295,16 @@ namespace FormulaTests
             Assert.AreNotEqual(f1, f2);
         }
 
+        // Test different normalization
         [TestMethod]
-        public void TestDifferentVariables()
+        public void TestDifferentNormalization()
         {
             Formula f1 = new Formula("x1+y2", s => s.ToUpper(), s => true);
             Formula f2 = new Formula("X1+Y2", s => s.ToLower(), s => true);
             Assert.AreNotEqual(f1, f2);
         }
 
+        // Test for normalizing
         [TestMethod]
         public void TestNormalize()
         {
@@ -307,7 +314,7 @@ namespace FormulaTests
             Assert.IsTrue(f1 != f2);
         }
 
-
+        // Test division by zero
         [TestMethod]
         public void TestDivisionByZero()
         {
@@ -324,43 +331,40 @@ namespace FormulaTests
             }
         }
 
+        // Test for precision
         [TestMethod]
-        public void TestPrecisionIssue()
+        public void TestPrecision()
         {
             Formula f = new Formula("2.0000000000000001");
             double expected = 2.0;
             object result = f.Evaluate(s => 0);
             double delta = 1e-15;
-            // Check if the result is a double and not a FormulaError
             Assert.IsNotInstanceOfType(result, typeof(FormulaError), "Evaluation resulted in an error.");
-
-            // Cast the result to double before comparing
             double actual = (double)result;
 
             Assert.IsTrue(Math.Abs(expected - actual) <= delta, "The evaluated result is not as expected.");
         }
 
-
+        // Test default normalization
         [TestMethod]
-        public void TestDefaultNormalizationAndValidation()
+        public void TestDefault()
         {
             Formula f = new Formula("a1 + B2");
-            // Expecting that 'a1' and 'B2' are treated as different variables
             var variables = f.GetVariables();
             Assert.IsTrue(variables.Contains("a1") && variables.Contains("B2"));
         }
 
-
+        // Test custom normalization
         [TestMethod]
         public void TestCustomNormalization()
         {
             Func<string, string> normalizeToLower = s => s.ToLower();
             Formula f = new Formula("A1 + B2", normalizeToLower, null);
             var variables = f.GetVariables();
-            // Expecting that 'A1' and 'B2' are converted to 'a1' and 'b2'
             Assert.IsTrue(variables.Contains("a1") && variables.Contains("b2"));
         }
 
+        // Test custom validation
         [TestMethod]
         public void TestCustomValidation()
         {
@@ -368,7 +372,6 @@ namespace FormulaTests
             bool exceptionThrown = false;
             try
             {
-                // '1A' should cause validation to fail because it does not start with a letter
                 Formula f = new Formula("A1 + 1A", s => s, validateStartsWithLetter);
                 f.Evaluate(s => 0);
             }
@@ -379,8 +382,9 @@ namespace FormulaTests
             Assert.IsTrue(exceptionThrown, "Expected a FormulaFormatException due to invalid variable name.");
         }
 
+        // Test Custom
         [TestMethod]
-        public void TestCustomNormalizationAndValidation()
+        public void TestCustom()
         {
             Func<string, string> normalizeToUpper = s => s.ToUpper();
             Func<string, bool> validateLength = s => s.Length == 2;
@@ -388,7 +392,6 @@ namespace FormulaTests
             bool exceptionThrown = false;
             try
             {
-                // The exception is expected to be thrown here, during the construction of the Formula object
                 Formula f = new Formula("a1 + b2 + ccc3", normalizeToUpper, validateLength);
             }
             catch (FormulaFormatException)
@@ -399,14 +402,15 @@ namespace FormulaTests
             Assert.IsTrue(exceptionThrown, "Expected a FormulaFormatException to be thrown due to invalid variable name.");
         }
 
+        // Test Invalid sequence
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestInvalidTokenSequence()
         {
-            // This should fail due to an invalid sequence like "(*"
             new Formula("( * 2 + 3");
         }
 
+        // Test undefined variable
         [TestMethod]
         public void TestUndefinedVariable()
         {
@@ -415,43 +419,46 @@ namespace FormulaTests
             Assert.IsInstanceOfType(result, typeof(FormulaError));
         }
 
+        // Test insufficient values
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestInsufficientValues()
         {
-            // This should fail due to insufficient values for the "+" operation
+
             new Formula("+").Evaluate(s => 0);
         }
 
+        // Test unbalanced parentheses
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
-        public void TestUnbalancedParentheses()
+        public void TestUnbalancedParentheses2()
         {
-            // This should fail due to unbalanced parentheses
+
             new Formula("(1 + 2").Evaluate(s => 0);
         }
 
+        // Test invalid token
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestInvalidToken()
         {
-            // This should fail due to an invalid token like "@"
+
             new Formula("1 + @").Evaluate(s => 0);
         }
 
-
+        // Test Exception
         [TestMethod]
         [ExpectedException(typeof(FormulaFormatException))]
         public void TestInvalidExpressionAfterOperators()
         {
-            // This should fail due to an invalid expression after processing all operators
             new Formula("1 +").Evaluate(s => 0);
         }
 
+        // Test Exception
         [TestMethod]
         public void TestRethrowingExceptionInVariableMethod()
         {
-            Formula f = new Formula("5 / 0"); // Division by zero
+            Formula f = new Formula("5 / 0"); 
             try
             {
                 f.Evaluate(s => 0);
@@ -459,56 +466,53 @@ namespace FormulaTests
             }
             catch (Exception ex)
             {
-                // Check if the correct exception is rethrown
+
                 Assert.IsTrue(ex.Message.Contains("SpreadsheetUtilities.FormulaError"));
             }
         }
 
+        // Test Exception
         [TestMethod]
         public void TestUnexpectedExceptionInVariable()
         {
-            // Arrange: Create a formula where the Calculate method would throw an unexpected exception.
-            // This requires a setup where Calculate would behave unexpectedly, which might not be straightforward
-            // to achieve with the current implementation.
-            // As an example, let's assume a scenario where Calculate throws an InvalidOperationException
-            // for a specific operation, like division by a specific number.
 
-            Formula f = new Formula("10 / specialCase"); // Assuming 'specialCase' triggers the unexpected exception
+            Formula f = new Formula("10 / specialCase"); 
 
             bool exceptionThrown = false;
             try
             {
-                // Act: Evaluate the formula
+
                 f.Evaluate(s =>
                 {
                     if (s == "specialCase") throw new InvalidOperationException("Unexpected error");
-                    return 5; // Return some default value for other cases
+                    return 5; 
                 });
             }
             catch (InvalidOperationException)
             {
-                // Assert: Check if the InvalidOperationException is thrown
+
                 exceptionThrown = true;
             }
 
             Assert.IsTrue(exceptionThrown, "Expected an InvalidOperationException to be thrown.");
         }
 
+        // Test Exception
         [TestMethod]
         [ExpectedException(typeof(InvalidOperationException))]
         public void TestRethrowUnexpectedException()
         {
-            // Arrange: Create a formula where Calculate throws an unexpected exception
-            Formula f = new Formula("someSpecialCase"); // someSpecialCase triggers an InvalidOperationException
 
-            // Act: Evaluate the formula
+            Formula f = new Formula("someSpecialCase"); 
+
+
             f.Evaluate(s =>
             {
                 if (s == "someSpecialCase") throw new InvalidOperationException("Unexpected error");
-                return 5; // Default return value for other cases
+                return 5; 
             });
 
-            // Assert: Expected an InvalidOperationException to be rethrown
+
         }
 
 
