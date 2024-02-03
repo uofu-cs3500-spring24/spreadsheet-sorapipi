@@ -89,10 +89,16 @@ namespace SpreadsheetUtilities
                 normalize = s => s;
             if (isValid == null)
                 isValid = s => true;
-            ValidateAndStoreTokens(formula, normalize, isValid);
+            ValidateTokens(formula, normalize, isValid);
         }
-
-        private void ValidateAndStoreTokens(string formula, Func<string, string> normalize, Func<string, bool> isValid)
+        /// <summary>
+        /// this function validates the token from the formula
+        /// </summary>
+        /// <param name="formula"></param>
+        /// <param name="normalize"></param>
+        /// <param name="isValid"></param>
+        /// <exception cref="FormulaFormatException"></exception>
+        private void ValidateTokens(string formula, Func<string, string> normalize, Func<string, bool> isValid)
         {
             var tokenList = GetTokens(formula).ToList();
             if (tokenList.Count == 0)
@@ -144,9 +150,6 @@ namespace SpreadsheetUtilities
 
             }
 
-
-
-
             if (openParentheses != 0)
             {
                 throw new FormulaFormatException("Unbalanced parentheses. Check if every left parenthesis has a right parenthesis");
@@ -155,23 +158,41 @@ namespace SpreadsheetUtilities
 
             tokens = tokenList;
         }
-
+        /// <summary>
+        /// check if the token is a valid token
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private bool IsValidToken(string token)
         {
             return IsOperator(token) || IsParenthesis(token) || IsVariable(token) || double.TryParse(token, out _);
         }
-
+        /// <summary>
+        /// check if the token is a valid operator
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private bool IsOperator(string token)
         {
             return new List<string> { "+", "-", "*", "/" }.Contains(token);
         }
 
+        /// <summary>
+        /// check if the token is a parenthesis
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         private bool IsParenthesis(string token)
         {
             return token == "(" || token == ")";
         }
 
-
+        /// <summary>
+        /// check if current sequence is valid
+        /// </summary>
+        /// <param name="previousToken"></param>
+        /// <param name="currentToken"></param>
+        /// <returns></returns>
         private bool IsSequence(string previousToken, string currentToken)
         {
             bool current = double.TryParse(currentToken, out _) || IsVariable(currentToken);
