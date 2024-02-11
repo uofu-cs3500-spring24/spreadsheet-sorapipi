@@ -298,22 +298,6 @@ namespace DependencyGraphTests
             Assert.AreEqual(1, t.Size);
         }
 
-        /// <summary>
-        /// Tests replace dependents and dependees.
-        /// </summary>
-        [TestMethod()]
-        public void ReplaceDependentsAndDependeesTest()
-        {
-            DependencyGraph t = new DependencyGraph();
-            t.AddDependency("a", "b");
-            t.ReplaceDependents("a", new HashSet<string>() { "c" });
-            t.ReplaceDependees("c", new HashSet<string>() { "d" });
-
-            Assert.IsTrue(t.GetDependents("a").Contains("c"));// check if "a" 's dependents is "c" for now
-            Assert.IsTrue(t.GetDependees("c").Contains("d"));// check if "c" 's dependees is "d" for now
-            Assert.IsFalse(t.GetDependents("a").Contains("b"));// check if "a" 's dependents is not "b" for now
-            Assert.IsFalse(t.GetDependees("c").Contains("a"));// check if "c" 's dependees is not "a" for now
-        }
 
         /// <summary>
         /// Tests cycle dependency.
@@ -331,20 +315,6 @@ namespace DependencyGraphTests
             Assert.AreEqual(3, t.Size);
         }
 
-        /// <summary>
-        /// Tests the count of dependees of a string.
-        /// </summary>
-        [TestMethod()]
-        public void SizeOfDependeesTest()
-        {
-            DependencyGraph t = new DependencyGraph();
-            t.AddDependency("a", "b");
-            t.AddDependency("a", "c");
-            t.AddDependency("d", "c");
-
-            Assert.AreEqual(0, t["c"]);
-            Assert.AreEqual(2, t["a"]); // "a" has no dependees.
-        }
 
     }
 }

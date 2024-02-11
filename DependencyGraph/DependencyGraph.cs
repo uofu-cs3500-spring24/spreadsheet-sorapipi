@@ -101,15 +101,12 @@ namespace SpreadsheetUtilities
         {
             get
             {
-                if (dependents.ContainsKey(s))
+                // Assuming dependees[s] returns the set of all items that s depends on
+                if (dependees.ContainsKey(s))
                 {
-                    return dependents[s].Count;
+                    return dependees[s].Count;
                 }
-                else
-                {
-                    // "s" has no dependees 
-                    return 0;
-                }
+                return 0;
             }
         }
         /// <summary>
@@ -181,22 +178,14 @@ namespace SpreadsheetUtilities
         /// <param name="t"></param>
         public void RemoveDependency(string s, string t)
         {
-            if (dependents.ContainsKey(s))
+            if (dependents.ContainsKey(s) && dependents[s].Remove(t) && dependents[s].Count == 0)
             {
-                dependents[s].Remove(t);
-                if (dependents[s].Count == 0)
-                {
-                    dependents.Remove(s);
-                }
+                dependents.Remove(s);
             }
 
-            if (dependees.ContainsKey(t))
+            if (dependees.ContainsKey(t) && dependees[t].Remove(s) && dependees[t].Count == 0)
             {
-                dependees[t].Remove(s);
-                if (dependees[t].Count == 0)
-                {
-                    dependees.Remove(t);
-                }
+                dependees.Remove(t);
             }
         }
         /// <summary>
@@ -205,25 +194,16 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependents(string s, IEnumerable<string> newDependents)
         {
-            // remove all current dependents of 's'
+            // Clear existing dependents
             if (dependents.ContainsKey(s))
             {
-                List<string> l = new List<string>(dependents[s]);
-                int i = 0;
-                while (i < l.Count)
+                foreach (var dependent in new List<string>(dependents[s]))
                 {
-                    var dependent = l[i];
-                    dependents[s].Remove(dependent);
-                    i++;
+                    RemoveDependency(s, dependent);
                 }
             }
-            else
-            {
-                dependents[s] = new HashSet<string> { };
-            }
 
-
-            // add the new dependents
+            // Add new dependents
             foreach (var t in newDependents)
             {
                 AddDependency(s, t);
@@ -235,23 +215,16 @@ namespace SpreadsheetUtilities
         /// </summary>
         public void ReplaceDependees(string s, IEnumerable<string> newDependees)
         {
+            // Clear existing dependees
             if (dependees.ContainsKey(s))
             {
-                List<string> l = new List<string>(dependees[s]);
-                // remove all current dependees of 's'
-                int i = 0;
-                while (i < l.Count)
+                foreach (var dependee in new List<string>(dependees[s]))
                 {
-                    var dependee = l[i];
-                    dependees[s].Remove(dependee);
-                    i++;
+                    RemoveDependency(dependee, s);
                 }
             }
-            else
-            {
-                dependees[s] = new HashSet<string> { };
-            }
-            //add the new dependees
+
+            // Add new dependees
             foreach (var t in newDependees)
             {
                 AddDependency(t, s);
