@@ -318,23 +318,33 @@ namespace SS
         /// <summary>
         /// A helper for the GetCellsToRecalculate method.
         /// 
-        ///   -- You should fully comment what is going on below using XML tags as appropriate --
+        ///recursively visits all cells that depend on the start cell then add them to a list
+        ///in the order they should be recalculated
         /// </summary>
+        /// <remarks>
+        /// this method uses DFS to traverse the dependency graph.
+        /// Also uses the GetCellsToRecalculate method to decide the order of recalculations after some changes to cell's content
+        /// </remarks>
+        /// <param name="start"> the name of the cell that is the start of the recalculation</param>
+        /// <param name="name">the name of the cell that we are visiting</param>
+        /// <param name="visited">a set of all cells that are visited</param>
+        /// <param name="changed">a linked list of cells that need to be recalculated</param>
+        /// <exception cref="CircularException">throw an exception if we find a circular dependency </exception>
         private void Visit(String start, String name, ISet<String> visited, LinkedList<String> changed)
         {
-            visited.Add(name);
-            foreach (String n in GetDirectDependents(name))
+            visited.Add(name);//set the current cell visited
+            foreach (String n in GetDirectDependents(name))// get all direct dependents of the current cell and visit them one by one
             {
-                if (n.Equals(start))
+                if (n.Equals(start)) // check if there is a circular, if the direct dependent we are visiting is the start cell of the recalculation, it is a circular
                 {
                     throw new CircularException();
                 }
-                else if (!visited.Contains(n))
+                else if (!visited.Contains(n))// if the direct dependent we are visiting is not visited, just recursively visit it
                 {
                     Visit(start, n, visited, changed);
                 }
             }
-            changed.AddFirst(name);
+            changed.AddFirst(name);// after vising all direct dependents of the current cell, add it to the list of changed cells
         }
 
     }
