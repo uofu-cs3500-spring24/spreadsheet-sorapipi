@@ -121,7 +121,7 @@ namespace SS
         /// <summary>
         /// Helper method to check if the cell's name is valid
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name"> cell content's name</param>
         /// <returns></returns>
         private bool IsValidName(string name)
         {
