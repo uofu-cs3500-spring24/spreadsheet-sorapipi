@@ -47,6 +47,8 @@ namespace SpreadsheetUtilities
     /// </summary>
     public class Formula
     {
+
+        private Func<string, string> normalize;
         private List<string> tokens = new List<string>();
         /// <summary>
         /// Creates a Formula from a string that consists of an infix expression written as
@@ -232,84 +234,123 @@ namespace SpreadsheetUtilities
         /// </summary>
         public object Evaluate(Func<string, double> lookup)
         {
-            var valueStack = new Stack<double>(); // create a stack to store the integer values
-            var operatorStack = new Stack<string>(); // create a stack to store the operators as strings
-            foreach (string token in tokens)// loop every token in the substrings
+            var values = new Stack<double>();
+            var operators = new Stack<string>();
+
+            foreach (string token in tokens)
             {
-                double number;
-                if (double.TryParse(token, out number))
+                double num;
+
+                if (double.TryParse(token, out num)) // If the token is a number
                 {
-                    Variable(number, valueStack, operatorStack);
-                    continue;
+                    if (operators.Count > 0 && (operators.Peek() == "*" || operators.Peek() == "/"))
+                    {
+                        try
+                        {
+                            double left = values.Pop();
+                            double result = Calculate(left, num, operators.Pop());
+                            values.Push(result);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            return new FormulaError(ex.Message);
+                        }
+                    }
+                    else
+                    {
+                        values.Push(num);
+                    }
                 }
-                else if (IsVariable(token))
+                else if (token == "+" || token == "-")
+                {
+                    while (operators.Count > 0 && values.Count > 1 && (operators.Peek() == "+" || operators.Peek() == "-"))
+                    {
+                        try
+                        {
+                            double right = values.Pop();
+                            double left = values.Pop();
+                            double result = Calculate(left, right, operators.Pop());
+                            values.Push(result);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            return new FormulaError(ex.Message);
+                        }
+                    }
+                    operators.Push(token);
+                }
+                else if (token == "*" || token == "/")
+                {
+                    operators.Push(token);
+                }
+                else if (token == "(")
+                {
+                    operators.Push(token);
+                }
+                else if (token == ")")
+                {
+                    while (operators.Count > 0 && operators.Peek() != "(")
+                    {
+                        try
+                        {
+                            double right = values.Pop();
+                            double left = values.Pop();
+                            double result = Calculate(left, right, operators.Pop());
+                            values.Push(result);
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            return new FormulaError(ex.Message);
+                        }
+                    }
+                    operators.Pop(); // Pop the "("
+                }
+                else if (Regex.IsMatch(token, @"^[a-zA-Z_][a-zA-Z_0-9]*$")) // If the token is a variable
                 {
                     try
                     {
-                        double value = lookup(token);
-                        Variable(value, valueStack, operatorStack);
+                        num = lookup(token);
+                        if (operators.Count > 0 && (operators.Peek() == "*" || operators.Peek() == "/"))
+                        {
+                            try
+                            {
+                                double left = values.Pop();
+                                double result = Calculate(left, num, operators.Pop());
+                                values.Push(result);
+                            }
+                            catch (ArgumentException ex)
+                            {
+                                return new FormulaError(ex.Message);
+                            }
+                        }
+                        else
+                        {
+                            values.Push(num);
+                        }
                     }
-                    catch (ArgumentException e)
+                    catch (ArgumentException ex)
                     {
-
-                        return new FormulaError(e.Message);
+                        return new FormulaError(ex.Message);
                     }
                 }
-                else
-                {
-                    switch (token)
-                    {
-                        case "+":
-                        case "-": // Cases for + and - operators
-                            Operator(token, valueStack, operatorStack);
-
-                            break;
-
-                        case "*":
-                        case "/": // Cases for * and / operators
-                            Variable(valueStack.Pop(), valueStack, operatorStack);
-                            operatorStack.Push(token);
-                            break;
-
-                        case "(": // Case for left parenthesis
-                            operatorStack.Push(token);
-                            break;
-
-                        case ")": // Case for right parenthesis
-                            while (operatorStack.Count > 0 && operatorStack.Peek() != "(")
-                            {
-                                if (valueStack.Count < 2)
-                                    throw new FormulaFormatException("Invalid expression: insufficient values for operation");
-                                string oper = operatorStack.Pop();// get the first element in operatorStack
-                                double right = valueStack.Pop();// get the first element in valueStack
-                                double left = valueStack.Pop();// get the first element for now in valueStack
-                                double result = Calculate(left, right, oper);
-                                valueStack.Push(result);// calculate the two values by the operator then push onto valueStack
-                            }
-                            if (operatorStack.Peek() == "(")
-                            {
-                                operatorStack.Pop();
-                            }
-                            break;
-                        default:
-                            return new FormulaError("Invalid token: " + token);
-
-                    }
-                }
-
             }
-            while (operatorStack.Count > 0)
+
+            while (operators.Count > 0 && values.Count > 1)
             {
-
-                if (valueStack.Count < 2)
-                    throw new FormulaFormatException("Invalid expression: insufficient values for operation ");
-                string oper = operatorStack.Pop();// get the first element in operatorStack
-                double right = valueStack.Pop();// get the first element in valueStack
-                double left = valueStack.Pop();// get the first element for now in valueStack
-                double result = Calculate(left, right, oper);
-                valueStack.Push(result);// calculate the two values by the operator then push onto valueStack
+                try
+                {
+                    double right = values.Pop();
+                    double left = values.Pop();
+                    double result = Calculate(left, right, operators.Pop());
+                    values.Push(result);
+                }
+                catch (ArgumentException ex)
+                {
+                    return new FormulaError(ex.Message);
+                }
             }
-            return valueStack.Pop();//get the evaluated result of the expression
+
+            return values.Pop();
         }
         /// <summary>
         /// this function does the evaluate after getting the value of the variable if the operatorStack's first element is * or /,
@@ -367,20 +408,16 @@ namespace SpreadsheetUtilities
         {
             switch (oper)
             {
-                case "+":
-                    return left + right; // case for +
-                case "-":
-                    return left - right;// case for -
-                case "*":
-                    return left * right;// case for *
+                case "+": return left + right;
+                case "-": return left - right;
+                case "*": return left * right;
                 case "/":
                     if (right == 0)
                     {
-                        throw new Exception(new FormulaError("Divided by zero").ToString());
+                        throw new ArgumentException("Division by zero."); // Throw an exception for division by zero
                     }
-
-                    return left / right;// case for  /
-                default: throw new FormulaFormatException("Invalid token: " + oper); //default case for invalid operator
+                    return left / right;
+                default: throw new FormulaFormatException("Invalid operator: " + oper);
             }
         }
 
@@ -495,7 +532,14 @@ namespace SpreadsheetUtilities
         /// </summary>
         public override int GetHashCode()
         {
-            return string.Join("", tokens).GetHashCode();
+            // Check if 'normalize' is null and if so, use an identity function as the default.
+            Func<string, string> normalizeFunc = this.normalize ?? (s => s);
+
+            // Normalize and concatenate all tokens to form a consistent string representation.
+            var normalizedRepresentation = string.Join("", tokens.Select(token =>
+                double.TryParse(token, out double num) ? num.ToString("G17") : normalizeFunc(token)));
+
+            return normalizedRepresentation.GetHashCode();
         }
 
         /// <summary>

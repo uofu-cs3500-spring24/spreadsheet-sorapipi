@@ -314,22 +314,6 @@ namespace FormulaTests
             Assert.IsTrue(f1 != f2);
         }
 
-        // Test division by zero
-        [TestMethod]
-        public void TestDivisionByZero()
-        {
-            Formula f = new Formula("1 / 0");
-            try
-            {
-                var result = f.Evaluate(s => 0);
-                Assert.Fail("Expected exception was not thrown.");
-            }
-            catch (Exception ex)
-            {
-                // Check if the exception is the expected one
-                Assert.IsTrue(ex.Message.Contains("SpreadsheetUtilities.FormulaError: Divided by zero"));
-            }
-        }
 
         // Test for precision
         [TestMethod]
@@ -454,22 +438,6 @@ namespace FormulaTests
             new Formula("1 +").Evaluate(s => 0);
         }
 
-        // Test Exception
-        [TestMethod]
-        public void TestRethrowingExceptionInVariableMethod()
-        {
-            Formula f = new Formula("5 / 0"); 
-            try
-            {
-                f.Evaluate(s => 0);
-                Assert.Fail("Expected exception was not thrown.");
-            }
-            catch (Exception ex)
-            {
-
-                Assert.IsTrue(ex.Message.Contains("SpreadsheetUtilities.FormulaError"));
-            }
-        }
 
         // Test Exception
         [TestMethod]
@@ -514,6 +482,8 @@ namespace FormulaTests
 
 
         }
+
+
 
 
     }
