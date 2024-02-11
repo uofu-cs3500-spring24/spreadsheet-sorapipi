@@ -26,7 +26,7 @@ namespace SS
         /// <summary>
         /// cell class
         /// </summary>
-        private class Cell
+        public class Cell
         {
             public object Content { get; set; }
             public object Value { get; set; }
