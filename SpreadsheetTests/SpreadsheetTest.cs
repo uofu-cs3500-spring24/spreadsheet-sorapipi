@@ -200,7 +200,7 @@ namespace SpreadsheetTests
 
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
+        [ExpectedException(typeof(InvalidNameException))]
         public void TestGetDirectDependentsNullNameException()
         {
             var ssTest = new SpreadsheetTestWrapper();
