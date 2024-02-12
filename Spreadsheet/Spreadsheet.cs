@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
@@ -27,7 +28,7 @@ namespace SS
         /// <summary>
         /// cell class
         /// </summary>
-        public class Cell
+        private class Cell
         {
             public object Content { get; set; }
             public object Value { get; set; }
@@ -35,7 +36,22 @@ namespace SS
             public Cell(object content)
             {
                 Content = content;
+                Value = content;
             }
+        }
+
+        /// <summary>
+        /// helper method for test
+        /// </summary>
+        /// <param name="name"> the name of the cell</param>
+        /// <returns></returns>
+        private object GetCellValue(string name)
+        {
+            if (cells.TryGetValue(name, out Cell cell))
+            {
+                return cell.Value;
+            }
+            return null;
         }
 
         /// <summary>
@@ -113,6 +129,7 @@ namespace SS
             else
             {
                 cells[name].Content = number;
+                //cells[name].Value = number;
             }
 
             dependencyGraph.ReplaceDependees(name, new HashSet<string>());
@@ -173,6 +190,7 @@ namespace SS
                 if (cells.ContainsKey(name))
                 {
                     cells[name].Content = text;
+                    //cells[name].Value = text;
                 }
                 else
                 {
@@ -239,6 +257,7 @@ namespace SS
             }
 
             cells[name] = new Cell(formula);
+            //cells[name].Value = formula;
 
             // return the cells
             return new HashSet<string>(GetCellsToRecalculate(name));
