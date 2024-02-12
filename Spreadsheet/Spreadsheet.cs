@@ -4,10 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SpreadsheetUtilities;
-using System.Runtime.CompilerServices;
-using System;
 
-[assembly: InternalsVisibleTo("SpreadsheetTests")]
 
 namespace SS
 {
@@ -30,7 +27,7 @@ namespace SS
         /// <summary>
         /// cell class
         /// </summary>
-        internal class Cell
+        public class Cell
         {
             public object Content { get; set; }
             public object Value { get; set; }

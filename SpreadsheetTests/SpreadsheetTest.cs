@@ -263,16 +263,11 @@ namespace SpreadsheetTests
         [TestMethod]
         public void TestCellClass()
         {
-            var cell = new Spreadsheet.Cell("Test content"); 
+            var cell = new Spreadsheet.Cell("Test content");
             cell.Value = "Test value";
             var actualValue = cell.Value;
             Assert.AreEqual("Test value", actualValue);
         }
-
-
-
-
-
 
 
     }
