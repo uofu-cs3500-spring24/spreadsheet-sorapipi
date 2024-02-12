@@ -232,14 +232,46 @@ namespace SpreadsheetTests
             ss.SetCellContents(null, 1.0);
         }
 
+        //[TestMethod]
+        //public void TestCellClass()
+        //{
+        //    var cell = new Spreadsheet.Cell("Test content");
+        //    cell.Value = "Test value";
+        //    var actualValue = cell.Value;
+        //    Assert.AreEqual("Test value", actualValue);
+        //}
+
         [TestMethod]
         public void TestCellClass()
         {
-            var cell = new Spreadsheet.Cell("Test content");
-            cell.Value = "Test value";
-            var actualValue = cell.Value;
-            Assert.AreEqual("Test value", actualValue);
+            var spreadsheet = new Spreadsheet();
+            spreadsheet.SetCellContents("A1", 123.45); 
+
+            // private method using reflection
+            var method = typeof(Spreadsheet).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (method == null)
+            {
+                Assert.Fail();
+            }
+            var value = method.Invoke(spreadsheet, new object[] { "A1" });
+            Assert.AreEqual(123.45, value);
         }
+
+        [TestMethod]
+        public void TestCellClass1()
+        {
+            var spreadsheet = new Spreadsheet();
+            var invalidCellName = "A01"; 
+            var method = typeof(Spreadsheet).GetMethod("GetCellValue", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (method == null)
+            {
+                Assert.Fail();
+            }
+            var result = method.Invoke(spreadsheet, new object[] { invalidCellName });
+
+            Assert.IsNull(result);
+        }
+
 
 
     }
