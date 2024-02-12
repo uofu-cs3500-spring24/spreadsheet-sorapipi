@@ -28,6 +28,19 @@ using System.Text.RegularExpressions;
 namespace SpreadsheetUtilities
 {
     /// <summary>
+    /// Author:    YINGHAO CHEN
+    /// Partner:   -NONE-
+    /// Date:      25/01/2024
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and YINGHAO CHEN - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, YINGHAO CHEN, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents:
     /// Represents formulas written in standard infix notation using standard precedence
     /// rules.  The allowed symbols are non-negative numbers written using double-precision 
     /// floating-point syntax (without unary preceeding '-' or '+'); 

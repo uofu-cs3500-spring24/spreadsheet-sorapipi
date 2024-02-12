@@ -9,15 +9,31 @@ using SpreadsheetUtilities;
 
 namespace SS
 {
+
     /// <summary>
-    /// this class implements the AbstractSpreadsheet and 
+    /// Author:    YINGHAO CHEN
+    /// Partner:   -NONE-
+    /// Date:      11/02/2024
+    /// Course:    CS 3500, University of Utah, School of Computing
+    /// Copyright: CS 3500 and YINGHAO CHEN - This work may not 
+    ///            be copied for use in Academic Coursework.
+    ///
+    /// I, YINGHAO CHEN, certify that I wrote this code from scratch and
+    /// did not copy it in part or whole from another source.  All 
+    /// references used in the completion of the assignments are cited 
+    /// in my README file.
+    ///
+    /// File Contents:
+    ///
+    ///This library class build a spreadsheet
+    ///this class implements the AbstractSpreadsheet and 
     /// also in this class I reuse or incorporate code I have already created. 
     /// and also this class is used to re-evaluate cells based on dependencies.
     /// and this class is "internal" of the spreadsheet program
     /// This class should inherit from AbstractSpreadsheet and implement its 
     /// abstract methods so that it satisfies their specifications.
     /// It should also provide a zero-argument constructor that creates an empty spreadsheet. 
-    /// and also can not add any other public fields, constructors, methods, or properties to Spreadsheet.
+    /// and also can not add any other public fields, constructors, methods, or properties to Spreadsheet
     /// </summary>
     public class Spreadsheet : AbstractSpreadsheet
     {
