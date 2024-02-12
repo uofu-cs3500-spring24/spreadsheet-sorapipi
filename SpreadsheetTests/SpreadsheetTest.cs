@@ -3,6 +3,7 @@ using SS;
 using SpreadsheetUtilities;
 using System;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 
 namespace SpreadsheetTests
 {
@@ -199,6 +200,15 @@ namespace SpreadsheetTests
         }
 
 
+        public class SpreadsheetTestWrapper : Spreadsheet
+        {
+            public IEnumerable<string> GetDirectDependentsWrapper(string name)
+            {
+                return this.GetDirectDependents(name);
+            }
+
+        }
+
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestGetDirectDependentsNullNameException()
@@ -207,13 +217,7 @@ namespace SpreadsheetTests
             ssTest.GetDirectDependentsWrapper(null); 
         }
 
-        public class SpreadsheetTestWrapper : Spreadsheet
-        {
-            public IEnumerable<string> GetDirectDependentsWrapper(string name)
-            {
-                return this.GetDirectDependents(name);
-            }
-        }
+
 
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
