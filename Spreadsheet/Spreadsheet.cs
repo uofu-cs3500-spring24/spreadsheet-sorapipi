@@ -248,9 +248,7 @@ namespace SS
         /// values depend directly on the value of the named cell. 
         /// </summary>
         /// 
-        /// <exception cref="ArgumentNullException"> 
-        ///   If the name is null, throw an ArgumentNullException.
-        /// </exception>
+
         /// 
         /// <exception cref="InvalidNameException"> 
         ///   If the name is null or invalid, throw an InvalidNameException
@@ -274,9 +272,7 @@ namespace SS
         /// </returns>
         protected override IEnumerable<string> GetDirectDependents(string name)
         {
-            if (name == null)
-                throw new ArgumentNullException(nameof(name));
-            if (!IsValidName(name))
+            if (name == null || !IsValidName(name))
                 throw new InvalidNameException();
 
             return dependencyGraph.GetDependents(name);
