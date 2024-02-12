@@ -9,6 +9,12 @@ using SpreadsheetUtilities;
 
 namespace SS
 {
+    /// <summary>
+    /// this class implements the AbstractSpreadsheet and 
+    /// also in this class I reuse or incorporate code I have already created. 
+    /// and also this class is used to re-evaluate cells based on dependencies.
+    /// and this class is "internal" of the spreadsheet program
+    /// </summary>
     public class Spreadsheet : AbstractSpreadsheet
     {
 
