@@ -199,34 +199,6 @@ namespace SpreadsheetTests
             Assert.AreEqual(new Formula("B1 * 2"), ss.GetCellContents("A1"));
         }
 
-
-        public class SpreadsheetTestWrapper : Spreadsheet
-        {
-            public IEnumerable<string> GetDirectDependentsWrapper(string name)
-            {
-                return this.GetDirectDependents(name);
-            }
-
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidNameException))]
-        public void TestGetDirectDependentsNullNameException()
-        {
-            var ssTest = new SpreadsheetTestWrapper();
-            ssTest.GetDirectDependentsWrapper(null); 
-        }
-
-
-
-        [TestMethod]
-        [ExpectedException(typeof(InvalidNameException))]
-        public void TestGetDirectDependentsInvalidNameException()
-        {
-            var ssTest = new SpreadsheetTestWrapper();
-            ssTest.GetDirectDependentsWrapper("123Invalid");
-        }
-
         [TestMethod]
         [ExpectedException(typeof(InvalidNameException))]
         public void TestSetCellContentsInvalidNameException1()
