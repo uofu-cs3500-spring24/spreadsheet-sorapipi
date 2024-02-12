@@ -14,6 +14,10 @@ namespace SS
     /// also in this class I reuse or incorporate code I have already created. 
     /// and also this class is used to re-evaluate cells based on dependencies.
     /// and this class is "internal" of the spreadsheet program
+    /// This class should inherit from AbstractSpreadsheet and implement its 
+    /// abstract methods so that it satisfies their specifications.
+    /// It should also provide a zero-argument constructor that creates an empty spreadsheet. 
+    /// and also can not add any other public fields, constructors, methods, or properties to Spreadsheet.
     /// </summary>
     public class Spreadsheet : AbstractSpreadsheet
     {
