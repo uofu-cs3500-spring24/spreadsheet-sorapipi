@@ -232,15 +232,6 @@ namespace SpreadsheetTests
             ss.SetCellContents(null, 1.0);
         }
 
-        //[TestMethod]
-        //public void TestCellClass()
-        //{
-        //    var cell = new Spreadsheet.Cell("Test content");
-        //    cell.Value = "Test value";
-        //    var actualValue = cell.Value;
-        //    Assert.AreEqual("Test value", actualValue);
-        //}
-
         [TestMethod]
         public void TestCellClass()
         {
