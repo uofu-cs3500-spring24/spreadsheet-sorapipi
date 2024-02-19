@@ -477,5 +477,27 @@ namespace SpreadsheetTests
             Assert.IsInstanceOfType(result, typeof(FormulaError));
         }
 
+        [TestMethod]
+        public void TestSave1()
+        {
+            var ss = new Spreadsheet(s => true, s => s, "1.0");
+            var formulaContent = new Formula("A1 + B1");
+            ss.SetContentsOfCell("C1", "=" + formulaContent.ToString());
+
+            string filename = "Test.xml";
+            ss.Save(filename);
+
+            var doc = XDocument.Load(filename);
+            var cell = doc.Descendants("cell").FirstOrDefault(c => c.Element("name").Value == "C1");
+            Assert.IsNotNull(cell);
+
+            var contents = cell.Element("contents").Value;
+            Assert.IsTrue(contents.StartsWith("="));
+            if (File.Exists(filename))
+            {
+                File.Delete(filename);
+            }
+        }
+
     }
 }
