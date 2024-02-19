@@ -26,3 +26,4 @@ DRY: I think in my codes, there are some methods need use the logic of GetCellsT
     2. Assignment Two:   Predicted Hours:          7        Actual Hours:   10   spent 2 hours on debugging
     3. Assignment Three: Predicted Hours:          10       Actual Hours:   16   spent too much time on modifying original code ( trying to catch more exceptions but found too many repeated) and the tests
     4. Assignment Four:  Predicted Hours:          10       Actual Hours:   11   spent 2 hours on writing tests to make sure the Fine Code Coverage is near 100%, and one hour on debugging
+    5. Assignment Five:  Predicted Hours:          8        Actual Hours:   10   spent 2.5 hours on modifying the old tests and codes

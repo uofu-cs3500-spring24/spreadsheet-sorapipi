@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormulaEvaluatorTester", "F
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C2099909-54DD-4F58-87C1-4B247E0E6DE6}"
 	ProjectSection(SolutionItems) = preProject
+		Whiteboard\architecture.png = Whiteboard\architecture.png
+		Whiteboard\dependency_graph_whiteboard.png = Whiteboard\dependency_graph_whiteboard.png
+		Whiteboard\formula_whiteboard.png = Whiteboard\formula_whiteboard.png
 		README.md = README.md
+		Whiteboard\spreadsheet_whiteboard.png = Whiteboard\spreadsheet_whiteboard.png
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DependencyGraph", "DependencyGraph\DependencyGraph.csproj", "{53B85A1E-A9C8-4357-84A0-D1244F8A5775}"
@@ -22,13 +26,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FormulaTests", "FormulaTest
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Formula", "Formula\Formula.csproj", "{A72F5133-3186-42B5-8D6F-FA9C05D74DBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Spreadsheet", "Spreadsheet\Spreadsheet.csproj", "{C1388849-CC39-4ECE-96B9-181036A9EC9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Spreadsheet", "Spreadsheet\Spreadsheet.csproj", "{C1388849-CC39-4ECE-96B9-181036A9EC9C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{425998CB-E676-4DDE-9EDB-0D97634F38B8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpreadsheetTests", "SpreadsheetTests\SpreadsheetTests.csproj", "{425998CB-E676-4DDE-9EDB-0D97634F38B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AS2GradingTest", "AS2GradingTest\AS2GradingTest.csproj", "{7D1E7363-36E9-415B-9F18-06D3FA48E318}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AS2GradingTest", "AS2GradingTest\AS2GradingTest.csproj", "{7D1E7363-36E9-415B-9F18-06D3FA48E318}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AS3GradingTest", "AS3GradingTest\AS3GradingTest.csproj", "{DB235828-4955-44DE-83AC-08B3AFBE575B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AS3GradingTest", "AS3GradingTest\AS3GradingTest.csproj", "{DB235828-4955-44DE-83AC-08B3AFBE575B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
