@@ -615,11 +615,16 @@ namespace SS
         /// <returns> contents in XML form </returns>
         public override string GetXML()
         {
-            var doc = new XDocument(new XElement("spreadsheet", new XAttribute("version", Version),
-            cells.Select(c => new XElement("cell",
-                new XElement("name", c.Key),
-                new XElement("contents", c.Value.Content.ToString())))));
+            var root = new XElement("spreadsheet", new XAttribute("version", Version));
+            foreach (var cell in cells)
+            {
+                var cellElement = new XElement("cell",
+                    new XElement("name", cell.Key),
+                    new XElement("contents", cell.Value.Content.ToString()));
 
+                root.Add(cellElement);
+            }
+            var doc = new XDocument(root);
             return doc.ToString();
         }
 
