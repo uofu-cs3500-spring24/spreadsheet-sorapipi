@@ -550,16 +550,30 @@ namespace SS
         {
             try
             {
-                var doc = new XDocument(new XElement("spreadsheet", new XAttribute("version", Version),
-                    cells.Select(c => new XElement("cell",
-                        new XElement("name", c.Key),
-                        new XElement("contents",
-                            c.Value.Content is Formula ? "=" + c.Value.Content.ToString() : c.Value.Content.ToString())))));
+                var root = new XElement("spreadsheet", new XAttribute("version", Version));
+
+                foreach (var cell in cells)
+                {
+                    string content;
+                    if (cell.Value.Content is Formula)
+                    {
+                        content = "=" + cell.Value.Content.ToString();
+                    }
+                    else
+                    {
+                        content = cell.Value.Content.ToString();
+                    }
+
+                    root.Add(new XElement("cell",
+                        new XElement("name", cell.Key),
+                        new XElement("contents", content)));
+                }
+                var doc = new XDocument(root);
 
                 doc.Save(filename);
                 Changed = false;
             }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            catch (Exception ex)
             {
                 throw new SpreadsheetReadWriteException("Failed to save");
             }
