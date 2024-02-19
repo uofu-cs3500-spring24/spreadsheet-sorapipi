@@ -440,7 +440,7 @@ namespace SpreadsheetTests
             Spreadsheet ss = new Spreadsheet(s => true, s => s, "1.0");
             ss.SetContentsOfCell("A1", "Test");
 
-            string filename = "invalid\\save.xml";
+            string filename = "invalid/save.xml";
 
 
             ss.Save(filename);
